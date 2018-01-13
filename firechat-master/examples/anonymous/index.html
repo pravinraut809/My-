@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="google-site-verification" content="qcp8hqEcr5qunfGQlZbk08OS2tot0AGoFUaVBkqd3hA" />
+    <meta charset="utf-8" />
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+    <!-- Firechat -->
+    <link rel="stylesheet" href="https://cdn.firebase.com/libs/firechat/3.0.1/firechat.min.css" />
+    <script src="https://cdn.firebase.com/libs/firechat/3.0.1/firechat.min.js"></script>
+
+    <!-- Custom CSS -->
+    <style>
+      #firechat-wrapper {
+        height: 475px;
+        max-width: 325px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        margin: 50px auto;
+        text-align: center;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 5px 25px #666;
+        -moz-box-shadow: 0 5px 25px #666;
+        box-shadow: 0 5px 25px #666;
+      }
+    </style>
+  </head>
+
+
+  <body>
+    <div id="firechat-wrapper"></div>
+    <script type="text/javascript">
+      // Initialize Firebase SDK
+      var config = {
+         apiKey: "AIzaSyDhEO_23ndQwwl0w_I22ruMqDhvh2t0cBA",
+    authDomain: "drprochat.firebaseapp.com",
+    databaseURL: "https://drprochat.firebaseio.com",
+
+      };
+      firebase.initializeApp(config);
+
+      // Get a reference to the Firebase Realtime Database
+      var chatRef = firebase.database().ref();
+
+      // Create an instance of Firechat
+      var chat = new FirechatUI(chatRef, document.getElementById("firechat-wrapper"));
+
+
+
+
+
+
+
+function login(){
+console.log("check 1");
+firebase.auth().onAuthStateChanged(function(user){
+if(user)
+{
+  var userId = user.uid,
+      username = user.displayName;
+      chat.setUser(userId, username);
+      $('#user-name').text(username);
+      $('#user-info').show();
+      setTimeout(function() {
+        chat._chat.enterRoom('-Iy1N3xs4kN8iALHV0QA')
+      }, 500);
+    }
+else{
+
+  var provider = new firebase.auth.GoogleAuthProvider();
+  console.log("check 3");
+  firebase.auth().signInWithPopup(provider);
+}
+});
+}
+
+
+function logout(){
+  firebase.auth().signOut().then(function() {
+    location.reload();
+  }).catch(function(error) {
+    console.log("Error signing user out:", error);
+  });
+}
+
+
+
+
+function logInWithPhone(phoneNumber){
+  firebase.auth().languageCode = 'it';
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+  var recaptchaResponse = grecaptcha.getResponse(window.recaptchaWidgetId);
+  var appVerifier = window.recaptchaVerifier;
+  firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+      .then(function (confirmationResult) {
+                        var code = getCodeFromUserInput();
+                        confirmationResult.confirm(code).then(function (result) {
+                        // User signed in successfully.
+                        var user = result.user;
+                        // ...
+                        }).catch(function (error) {
+                          console.log("Code incorrect");
+                        });
+
+});
+}
+
+function submit(phoneNumber){
+    var phoneNumber = document.getElementById('phoneNumber');
+
+
+     var phoneNumber = phoneNumber.value;
+     console.log(phoneNumber);
+}
+
+
+
+
+    </script>
+
+                <div id="recaptcha-container"></div>
+
+
+
+                  <label>Phone Number</label>
+                  <input id="phoneNumber" type="number" min="10" name="phoneNumber">
+                  <button onclick="submit()">Submit</button>
+
+<br>
+<br>  <button id="logInWithPhone" onClick="logInWithPhone(phoneNumber)">Log in with phone</button>
+
+  <br>  <button onclick="login()">Login with Google</button>
+
+    <br><button onclick="logout()">Logout</button>
+
+
+
+  </body>
+</html>
